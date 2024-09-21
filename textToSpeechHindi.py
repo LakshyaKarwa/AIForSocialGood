@@ -16,7 +16,10 @@ def text_to_speech_hindi(eng_output):
     return audio_file
 
 def play_audio(audio_file):
-    playsound(audio_file)
+    if(os.file.exists(audio_file)):
+        playsound(audio_file)
+    else:
+        print("Audio file not found.")
 
 eng_output = "Hello my name is Manav"           # Dummy Input
 audio_file = text_to_speech_hindi(eng_output)
