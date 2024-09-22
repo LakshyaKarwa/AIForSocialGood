@@ -61,6 +61,7 @@ By making mental health care more accessible and normalizing seeking help throug
 This solution leverages AI to create a scalable, inclusive mental health tool that provides meaningful support to those most in need, making a significant societal impact.
 
 ### 1.3 Technical Aspects
+
 - **Programming Languages**: List all programming languages used in the project, detailing their roles and why they were chosen (e.g., Python for data analysis, JavaScript for front-end development).
 - **Frameworks and Libraries**: Specify the frameworks and libraries employed (e.g., TensorFlow, React, Django).
 
@@ -77,6 +78,7 @@ Tool Name:
 3. MetaAI
 4. Gemini
 5. Co-pilot
+6. HuggingChat
 
 ### 2.2 Application of AI Tools
 - **When Applied**: Specify when each tool was applied during the project phases (e.g., brainstorming, developing).
@@ -92,7 +94,7 @@ Copilot: autocompletion of code and code suggestions. modifications of code whic
 
 
 ### 2.3 Total use of AI Tools
-- **Participant 1-- %usage**: Detail the percentage of AI tool usage by the participant across different project phases, such as brainstorming, development, documentation, and testing. Specify which tools were used most frequently.
-- **Participant 2-- %usage**: Detail the percentage of AI tool usage by the participant across different project phases, such as brainstorming, development, documentation, and testing. Specify which tools were used most frequently.
-- **Participant 3-- %usage**: Detail the percentage of AI tool usage by the participant across different project phases, such as brainstorming, development, documentation, and testing. Specify which tools were used most frequently.
-- **Participant 4-- %usage**: Detail the percentage of AI tool usage by the participant across different project phases, such as brainstorming, development, documentation, and testing. Specify which tools were used most frequently.
+- **Arhant Arora-- 65%**: Used chatGPT for parts of code generation.
+- **Lakshya Karwa-- 65%**: Used chatGPT to understand American and Indian Sign Language and gather dataset reources from the same, utilized copilot for auto completion of code/suggestions. Used Amazon Q for defining training classes in pytorch.
+- **Manav Chaudhary-- 55%**: Used ChatGPT for code generation, help with code for speech recognition library usage. Used Gemini for instruction tuning
+- **Siya Gupta-- 60%**: Used ChatGPT for ideation, documentation and presentation and speech recognition library for the google translation API for Hindi to English text.
