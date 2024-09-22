@@ -1,5 +1,5 @@
 import speech_recognition as sr
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 
 recognizer = sr.Recognizer()
 
@@ -13,16 +13,18 @@ def speech_to_text_hindi():
             # Recognize speech using Google's API with Hindi language code
             text = recognizer.recognize_google(audio, language="hi-IN")
             print(f"Recognized text: {text}")
+            return text
         except sr.UnknownValueError:
             print("Sorry, I could not understand the audio.")
-        except sr.RequestError:
-            print("Could not request results from Google Speech Recognition service.")
+        except sr.RequestError as e:
+            print(f"RequestError: {str(e)}")
 
-speech_to_text_hindi()
 
 def translate_hindi_to_english():
-    hindi_text = speech_to_text_hindi()
-    translator = Translator()
-    
-    translation = translator.translate(hindi_text, src='hi', dest='en')
-    return translation.text
+    hin_input = speech_to_text_hindi()
+    eng_input = GoogleTranslator(source = 'hi', target = 'en').translate(hin_input)
+    print(f"Translated text: {eng_input}")
+    return eng_input
+
+# if __name__ == '__main__':
+#     eng_input = translate_hindi_to_english()

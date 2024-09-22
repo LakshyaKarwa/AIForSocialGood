@@ -9,7 +9,9 @@ from google.api_core.exceptions import ResourceExhausted
 
 # PROMPT TEMPLATE
 TEMPLATE = """
-You are a mental-health expert and assistant. Please respond to the user query in an empathetic manner. Always treat them with great care, using phrases like "I understand that..." or "It's okay to feel...". Reflect back on what the user shares with cues like "It sounds like you’re feeling...". Ask open-ended questions to encourage exploration, such as "Can you tell me more about that?" or "What do you think might help?". If the user seems distressed, gently suggest seeking professional help. Offer tailored coping strategies or resources based on their situation, ensuring a supportive and compassionate interaction.
+You are a mental-health expert and assistant. Please respond to the user query in an empathetic manner. Treat them with great care, using phrases like "I understand that..." or "It's okay to feel...". Reflect back on what the user shares with cues like "It sounds like you’re feeling...". Ask open-ended questions to encourage exploration, such as "Can you tell me more about that?" or "What do you think might help?". If the user seems distressed, gently suggest seeking professional help. Offer tailored coping strategies or resources based on their situation, ensuring a supportive and compassionate interaction.
+Please be as human-like as possible. Do not sound like a machine. Do not repeat the same phrase multiple times. Keep your answers concise, to-the-point and refrain from using bullet lists. Keep the conversation natural and engaging. 
+ 
 
 User Query:
 {question}
@@ -27,7 +29,7 @@ def configure_genai(api_key):
         "temperature": 0.7,  # Adjusted for more engaging conversation
         "top_p": 1,
         "top_k": 1,
-        "max_output_tokens": 128,  # Shorter responses for ongoing chat
+        "max_output_tokens": 72  # Shorter responses for ongoing chat
     }
     model = genai.GenerativeModel(
         model_name="gemini-pro",
@@ -48,56 +50,31 @@ def generate_response(model, prompt):
         print(f"Error occurred: {e}")
         return "I'm sorry, I encountered an error."
 
-def chat_with_user(model):
-    chat_history = []
-    print("Welcome to the mental health chat assistant! How can I help you today?")
+def chat_with_user(model, user_inp, chat_history, first_prompt):
+    user_input = user_inp
+    bye = ["okay thank you", "ok thanks", "okay thanks", "ok thank you"]
+    if user_input.lower() in bye:
+        print("Assistant: You're welcome! If you need anything else, feel free to ask.")
+        return "end the conversation gemini"
+
+    # Use template for the first response
+    if first_prompt:
+        prompt = TEMPLATE.format(question = user_input)
+        first_prompt = False
+
+    else:
+        # Include previous user input for context
+        context = "\n".join([f"User: {entry['user']}" for entry in chat_history if 'user' in entry]) + f"\nAssistant: "
+        prompt = context + user_input
+
+    assistant_response = generate_response(model, prompt)
+    print(f"Assistant: {assistant_response}")
     
-    first_prompt = True
+    return assistant_response
 
-    while True:
-        # add hindi to english input here
-        user_input = input("You: ")
-        chat_history.append({'user': user_input})
-
-        if "end the conversation gemini" in user_input.lower():
-            print("Assistant: You're welcome! If you need anything else, feel free to ask.")
-            break
-        
-        # use template only for the first response
-        if first_prompt:
-            prompt = TEMPLATE.format(question=user_input)
-            first_prompt = False
-        else:
-            # include previous user input for context
-            context = "\n".join([f"User: {entry['user']}" for entry in chat_history if 'user' in entry]) + f"\nAssistant: "
-            prompt = context + user_input
-        
-        # add the translator and speech tool here
-        assistant_response = generate_response(model, prompt)
-        print(f"Assistant: {assistant_response}")
-        chat_history.append({'assistant': assistant_response})
-    return chat_history
 
 
 def save_chat_history(chat_history, jsonl_file_path):
     with open(jsonl_file_path, 'w') as jsonl_file:
         for entry in chat_history:
             jsonl_file.write(json.dumps(entry) + '\n')
-
-def main():
-    parser = argparse.ArgumentParser(description="Generate appropriate response given prompt using Google Generative AI.")
-    parser.add_argument('--api_key', type=str, required=True, help="API key for Google Generative AI.")
-    parser.add_argument('--jsonl_file_path', type=str, required=True, help="Path to save chat history in JSONL format.")
-    args = parser.parse_args()
-
-    print("Configuring generative model")
-    model = configure_genai(args.api_key)
-
-    print("Starting chat...")
-    chat_history = chat_with_user(model)
-
-    print(f"\nChat history saved at: {args.jsonl_file_path}")
-    save_chat_history(chat_history, args.jsonl_file_path)
-
-if __name__ == "__main__":
-    main()
