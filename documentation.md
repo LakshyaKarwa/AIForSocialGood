@@ -43,7 +43,7 @@ Converts the generated advice from English back into the originally used languag
 3. AI-Powered Mental Health Advice:
 An AI-based engine analyzes the input and provides tailored mental health advice based on the user's problem, using a mental health knowledge base or support system.
 
-4. Text-to-Speech and ISL Output:
+4. Text-to-Speech:
 For the users, the advice is delivered as natural-sounding speech using Text-to-Speech (TTS) technology, in their native language.
 
 5. Accessible and Scalable Design:
