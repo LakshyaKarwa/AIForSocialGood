@@ -22,6 +22,8 @@ User Query:
 REFINEMENT_TEMPLATE = """
 You are an expert in communication, specializing in refining responses to be concise, human-like, and natural. Please refine the following response to be free of bullet points, unnecessary advice, or repetitive language. Make sure the tone is conversational, empathetic, and direct without sounding robotic. Remove any irrelevant or generic suggestions, and keep the response clear and focused.
 
+Do not repeat phrases that have been used previously in conversation.
+
 Assistant's Initial Response:
 {initial_response}
 """
@@ -44,8 +46,8 @@ def configure_genai(api_key):
     ]
     generation_config = {
         "temperature": 0.7,  # Adjusted for more engaging conversation
-        "top_p": 1,
-        "top_k": 1,
+        "top_p": 0.9,
+        "top_k": 0.7,
         "max_output_tokens": 72  # Shorter responses for ongoing chat
     }
     model = genai.GenerativeModel(
@@ -89,6 +91,9 @@ def chat_with_user(model, user_inp, chat_history, first_prompt):
     else:
         context = "\n".join([f"User: {entry['user']}" for entry in chat_history if 'user' in entry]) + f"\nAssistant: "
         prompt = context + user_input
+        print("This is the prompt being sent to the model\n\n\n")
+        print(prompt)
+        
 
     assistant_response = generate_response(model, prompt)
     # Refine the assistant response for more natural and human-like tone
