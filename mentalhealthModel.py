@@ -92,7 +92,7 @@ def chat_with_user(model, user_inp, chat_history, first_prompt):
     bye = ["okay thank you", "ok thanks", "okay thanks", "ok thank you"]
     if user_input.lower() in bye:
         print("Assistant: You're welcome! If you need anything else, feel free to ask.")
-        return "end the conversation gemini"
+        return -1
 
     if first_prompt:
         prompt = TEMPLATE.format(question = user_input)

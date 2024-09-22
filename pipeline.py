@@ -1,6 +1,7 @@
 import speechToTextHindi as stth
 import textToSpeechHindi as ttsh
 import mentalhealthModel as mhm
+import speech2text_detection as s2t
 import argparse
 import time
 
@@ -9,12 +10,12 @@ def iterative_chat_loop(model):
     chat_history = []
     first_prompt = True
     while True:
-        eng_input = stth.translate_hindi_to_english()
+        eng_input = s2t.translate_dynamic_to_english()
         
         assistant_response = mhm.chat_with_user(model, eng_input, chat_history, first_prompt)
         first_prompt = False
 
-        if assistant_response.lower() == "end the conversation gemini":
+        if assistant_response == -1:
             ttsh.text_to_speech_hindi("You're welcome! If you need anything else, feel free to ask.")
             chat_history.append({'user': eng_input, 'assistant': "You're welcome! If you need anything else, feel free to ask."})
             break

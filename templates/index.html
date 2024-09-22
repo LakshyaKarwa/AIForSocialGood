@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Health Chatbot</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Mental Health Chatbot</h1>
+    <div id="chatbox" style="height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
+    
+    <button id="start_recording">Start Recording</button>
+
+    <script>
+        $('#start_recording').click(function() {
+            // Disable the button to prevent multiple clicks
+            $(this).prop('disabled', true).text('Recording...');
+    
+            // Call the Flask route to start recording and processing
+            $.post('/send', function(data) {
+                // Append the actual recognized user input
+                $('#chatbox').append('<div>You: ' + data.user_input + '</div>');
+                $('#chatbox').append('<div>Assistant: ' + data.response + '</div>');
+                
+                // Play the audio response
+                const audio = new Audio(data.audio);
+                audio.play();
+    
+                // Re-enable the button for the next recording
+                $('#start_recording').prop('disabled', false).text('Start Recording');
+                $('#chatbox').scrollTop($('#chatbox')[0].scrollHeight);
+            });
+        });
+    </script>
+    
+</body>
+</html>
