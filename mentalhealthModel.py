@@ -28,6 +28,11 @@ Assistant's Initial Response:
 {initial_response}
 """
 
+CONTEXTUAL_TEMPLATE = """
+Here is the chat history between the user and the assistant. Use this to generate the response. Make sure to not repeat any phrases already used by the assistant
+
+"""
+
 def refine_response(model, assistant_response):
     refinement_prompt = REFINEMENT_TEMPLATE.format(initial_response=assistant_response)
     
@@ -46,9 +51,9 @@ def configure_genai(api_key):
     ]
     generation_config = {
         "temperature": 0.7,  # Adjusted for more engaging conversation
-        "top_p": 0.9,
-        "top_k": 0.7,
-        "max_output_tokens": 72  # Shorter responses for ongoing chat
+        "top_p": 1,
+        "top_k": 1,
+        "max_output_tokens": 128  # Shorter responses for ongoing chat
     }
     model = genai.GenerativeModel(
         model_name="gemini-pro",
@@ -89,8 +94,8 @@ def chat_with_user(model, user_inp, chat_history, first_prompt):
         prompt = TEMPLATE.format(question = user_input)
         first_prompt = False
     else:
-        context = "\n".join([f"User: {entry['user']}" for entry in chat_history if 'user' in entry]) + f"\nAssistant: "
-        prompt = context + user_input
+        context = "\n".join([f"User: {entry['user']}\nAssistant: {entry['assistant']}" for entry in chat_history if 'user' and 'assistant' in entry]) + f"\nUser: "
+        prompt = CONTEXTUAL_TEMPLATE + context + user_input
         print("This is the prompt being sent to the model\n\n\n")
         print(prompt)
         
