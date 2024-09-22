@@ -18,7 +18,21 @@ Your goal is to make the user feel heard, understood, and gently guided toward c
 User Query:
 {question}
 """
+# REFINEMENT TEMPLATE
+REFINEMENT_TEMPLATE = """
+You are an expert in communication, specializing in refining responses to be concise, human-like, and natural. Please refine the following response to be free of bullet points, unnecessary advice, or repetitive language. Make sure the tone is conversational, empathetic, and direct without sounding robotic. Remove any irrelevant or generic suggestions, and keep the response clear and focused.
 
+Assistant's Initial Response:
+{initial_response}
+"""
+
+def refine_response(model, assistant_response):
+    refinement_prompt = REFINEMENT_TEMPLATE.format(initial_response=assistant_response)
+    
+    refined_response = generate_response(model, refinement_prompt)
+    refined_response = preprocess_response(refined_response)
+    
+    return refined_response
 
 def configure_genai(api_key):
     genai.configure(api_key=api_key)
@@ -44,12 +58,10 @@ def configure_genai(api_key):
 import re
 
 def preprocess_response(response):
-    # Remove asterisks, bullet points, and newlines
-    clean_response = re.sub(r'[\*\-\•]', '', response)  # Remove bullet points or asterisks
-    clean_response = clean_response.replace('\n', ' ').strip()  # Remove newlines, extra spaces
-    clean_response = re.sub(r'\s+', ' ', clean_response)  # Collapse multiple spaces into one
-    # Ensure proper punctuation (only full stops and commas)
-    clean_response = re.sub(r'(\?|!)+', '.', clean_response)  # Replace multiple exclamation marks or question marks with full stops
+    clean_response = re.sub(r'[\*\-\•]', '', response)
+    clean_response = clean_response.replace('\n', ' ').strip()
+    clean_response = re.sub(r'\s+', ' ', clean_response)
+    clean_response = re.sub(r'(\?|!)+', '.', clean_response)
     return clean_response
 
 def generate_response(model, prompt):
@@ -79,12 +91,12 @@ def chat_with_user(model, user_inp, chat_history, first_prompt):
         prompt = context + user_input
 
     assistant_response = generate_response(model, prompt)
-    assistant_response = preprocess_response(assistant_response)
-    print(f"Assistant: {assistant_response}")
+    # Refine the assistant response for more natural and human-like tone
+    refined_assistant_response = refine_response(model, assistant_response)
+    refined_assistant_response = preprocess_response(refined_assistant_response)
+    print(f"Assistant: {refined_assistant_response}")
     
-    return assistant_response
-
-
+    return refined_assistant_response
 
 def save_chat_history(chat_history, jsonl_file_path):
     with open(jsonl_file_path, 'w') as jsonl_file:
