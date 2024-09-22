@@ -9,7 +9,7 @@ from google.api_core.exceptions import ResourceExhausted
 
 # PROMPT TEMPLATE
 TEMPLATE = """
-You are an Indian mental-health expert and assistant. Please respond to the user query with empathy, tailoring your response based on the specifics of what the user shares. Vary your language to avoid sounding repetitive or formulaic. Ensure the conversation feels natural by reflecting back on what the user says and encouraging deeper exploration with thoughtful open-ended questions only when necessary. Avoid generic or surface-level advice. Be concise, direct, and empathetic, focusing on a single idea or solution where possible, and provide meaningful, practical suggestions.
+You are a world-renowned mental-health expert and assistant. Please respond to the user query with empathy, tailoring your response based on the specifics of what the user shares. Vary your language to avoid sounding repetitive or formulaic. Ensure the conversation feels natural by reflecting back on what the user says and encouraging deeper exploration with thoughtful open-ended questions only when necessary. Avoid generic or surface-level advice. Be concise, direct, and empathetic, focusing on a single idea or solution where possible, and provide meaningful, practical suggestions.
 
 If the user seems distressed, calmly suggest they reach out to a professional without being forceful. 
 
@@ -18,6 +18,7 @@ Your goal is to make the user feel heard, understood, and gently guided toward c
 PLease note the following: 
 1. Always ask whether the user would like to have a solution-oriented approach or a comfort-oriented.
 2. Unless stated by the user, do not assume that the user is going through a tough time. Try to keep the conversation as normal as possible.
+3. Any and all region specific solutions, such as government programs, need to be tailored based on the user's native language. Please note that the user's native language code is {lng_code}. You can either choose to ask the user about their home country, or assume based on their native language and then suggest region-specific solutions.
 
 User Query:
 {question}
@@ -30,15 +31,19 @@ Do not repeat phrases that have been used previously in conversation.
 
 Chat History:
 {initial_response}
+
+Please note that if the response contains any region specific solutions, such as government programs they need to be tailored based on the user's native language. Please note that the user's native language code is {lng_code}. You can either choose to ask the user about their home country, or assume based on their native language and then suggest region-specific solutions.
 """
 
 CONTEXTUAL_TEMPLATE = """
 Here is the chat history between the user and the assistant. Use this to generate the response. Make sure to not repeat any phrases already used by the assistant. Be more creative and human-like in your responses. Be compassionate, be compassionate, be compassionate.
 
+Please note that the user's native language code is {lng_code}. You can either choose to ask the user about their home country, or assume based on their native language and then suggest region-specific solutions.
+
 """
 
-def refine_response(model, assistant_response):
-    refinement_prompt = REFINEMENT_TEMPLATE.format(initial_response=assistant_response)
+def refine_response(lng, model, assistant_response):
+    refinement_prompt = REFINEMENT_TEMPLATE.format(lng_code = lng, initial_response=assistant_response)
     
     refined_response = generate_response(model, refinement_prompt)
     refined_response = preprocess_response(refined_response)
@@ -87,7 +92,7 @@ def generate_response(model, prompt):
         print(f"Error occurred: {e}")
         return "I'm sorry, I encountered an error."
 
-def chat_with_user(model, user_inp, chat_history, first_prompt):
+def chat_with_user(model, user_inp, chat_history, first_prompt, lng):
     user_input = user_inp
     bye = ["okay thank you", "ok thanks", "okay thanks", "ok thank you"]
     if user_input.lower() in bye:
@@ -95,18 +100,18 @@ def chat_with_user(model, user_inp, chat_history, first_prompt):
         return -1
 
     if first_prompt:
-        prompt = TEMPLATE.format(question = user_input)
+        prompt = TEMPLATE.format(lng_code = lng, question = user_input)
         first_prompt = False
     else:
         context = "\n".join([f"User: {entry['user']}\nAssistant: {entry['assistant']}" for entry in chat_history if 'user' and 'assistant' in entry]) + f"\nUser: "
-        prompt = CONTEXTUAL_TEMPLATE + context + user_input
+        prompt = CONTEXTUAL_TEMPLATE.format(lng_code = lng) + context + user_input
         print("This is the prompt being sent to the model\n\n\n")
         print(prompt)
         
 
     assistant_response = generate_response(model, prompt)
     # Refine the assistant response for more natural and human-like tone
-    refined_assistant_response = refine_response(model, assistant_response)
+    refined_assistant_response = refine_response(lng, model, assistant_response)
     refined_assistant_response = preprocess_response(refined_assistant_response)
     print(f"Assistant: {refined_assistant_response}")
     

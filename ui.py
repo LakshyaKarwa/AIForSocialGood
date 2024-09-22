@@ -5,6 +5,8 @@ import textToSpeechHindi as ttsh
 import mentalhealthModel as mhm
 import argparse
 from deep_translator import GoogleTranslator
+import speech2text_detection as s2t
+import textToSpeechDyn as t2s
 
 class MentalHealthAssistantUI:
     def __init__(self, master, model, jsonl_file_path):
@@ -23,15 +25,16 @@ class MentalHealthAssistantUI:
         self.user_input.bind("<Return>", self.send_message)
 
         # Speak button
-        self.speak_button = tk.Button(master, text="Speak", command=self.speak_input, bg="#007BFF", fg="white", font=("Arial", 12, "bold"), relief=tk.RAISED)
+        self.speak_button = tk.Button(master, text="Speak", command=self.speak_input, bg="#000000", fg="black", font=("Arial", 12, "bold"), relief=tk.RAISED)
         self.speak_button.grid(row=1, column=1, padx=10, pady=10)
 
         # Language selection dropdown
         self.language_var = tk.StringVar(value="English")  # Default language
-        self.language_menu = tk.OptionMenu(master, self.language_var, "English", "Hindi")
+        self.language_menu = tk.OptionMenu(master, self.language_var, "English", "Native")
         self.language_menu.config(bg="#ffffff", fg="#000000", font=("Arial", 12))
         self.language_menu.grid(row=2, column=0, padx=10, pady=(10, 0), sticky=tk.W)
-        self.language_code = 'en' if self.language_var == 'English' else 'hi'
+        self.language_code = 'en'
+        self.detect = True
 
         self.model = model
         self.chat_history = []
@@ -53,11 +56,12 @@ class MentalHealthAssistantUI:
         self.chat_display.config(state='disabled')
         self.user_input.delete(0, tk.END)
 
-        assistant_response = mhm.chat_with_user(self.model, user_message, self.chat_history, self.first_prompt)
+        assistant_response = mhm.chat_with_user(self.model, user_message, self.chat_history, self.first_prompt, self.language_code)
         self.first_prompt = False
-
+        self.chat_history.append({'user': self.user_input.get(), 'assistant': assistant_response})
         if assistant_response == -1:
             response = "You're welcome! If you need anything else, feel free to ask."
+            self.chat_history.append({'user': self.user_input.get(), 'assistant': response})
             self._display_response(1, response)
             self.master.destroy()
             return
@@ -65,27 +69,35 @@ class MentalHealthAssistantUI:
         self._display_response(1, assistant_response)
 
     def speak_input(self):
-        translated_input = stth.translate_hindi_to_english()
+        translated_input, self.language_code = s2t.translate_dynamic_to_english(self.detect, self.language_code)
+        self.detect = False
         self._display_response(0, translated_input)
-        assistant_response = mhm.chat_with_user(self.model, translated_input, self.chat_history, self.first_prompt)
+        assistant_response = mhm.chat_with_user(self.model, translated_input, self.chat_history, self.first_prompt, self.language_code)
         self.first_prompt = False
         
         if assistant_response == -1:
             response = "You're welcome! If you need anything else, feel free to ask."
+            self.chat_history.append({'user': translated_input, 'assistant': response})
             self._display_response(1, response)
             self.master.destroy()
             return
-
+        
+        self.chat_history.append({'user': translated_input, 'assistant': assistant_response})
         self._display_response(1, assistant_response)
 
     def _display_response(self, id, response):
-        self.chat_history.append({'user': self.user_input.get(), 'assistant': response})
         self.chat_display.config(state='normal')
         if id == 0:
-            self.chat_display.insert(tk.END, f"You: {GoogleTranslator(source='auto', target=self.language_code).translate(self.user_input.get())}\n")
+            if self.language_var.get() == 'Native':
+                self.chat_display.insert(tk.END, f"You: {GoogleTranslator(source='auto', target=self.language_code).translate(response)}\n")
+            else:
+                self.chat_display.insert(tk.END, f"You: {response}\n")
         elif id == 1:
-            self.chat_display.insert(tk.END, f"Assistant: {GoogleTranslator(source='auto', target=self.language_code).translate(response)}\n")
-            ttsh.text_to_speech_hindi(response)
+            if self.language_var.get() == 'Native':
+                self.chat_display.insert(tk.END, f"Assistant: {GoogleTranslator(source='auto', target=self.language_code).translate(response)}\n")
+            else:
+                self.chat_display.insert(tk.END, f"Assistant: {response}\n")
+            t2s.text_to_speech_dyn(response, self.language_code)
         self.chat_display.config(state='disabled')
         self.save_chat_history()
 
