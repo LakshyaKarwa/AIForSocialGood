@@ -1,6 +1,6 @@
 import speechToTextHindi as stth
 import textToSpeechHindi as ttsh
-import test2 as mhm
+import mentalhealthModel as mhm
 import argparse
 import time
 
