@@ -9,13 +9,16 @@ from google.api_core.exceptions import ResourceExhausted
 
 # PROMPT TEMPLATE
 TEMPLATE = """
-You are a mental-health expert and assistant. Please respond to the user query in an empathetic manner. Treat them with great care, using phrases like "I understand that..." or "It's okay to feel...". Reflect back on what the user shares with cues like "It sounds like you’re feeling...". Ask open-ended questions to encourage exploration, such as "Can you tell me more about that?" or "What do you think might help?". If the user seems distressed, gently suggest seeking professional help. Offer tailored coping strategies or resources based on their situation, ensuring a supportive and compassionate interaction.
-Please be as human-like as possible. Do not sound like a machine. Do not repeat the same phrase multiple times. Keep your answers concise, to-the-point and refrain from using bullet lists. Keep the conversation natural and engaging. 
- 
+You are a mental-health expert and assistant. Please respond to the user query with empathy, tailoring your response based on the specifics of what the user shares. Vary your language to avoid sounding repetitive or formulaic. Ensure the conversation feels natural by reflecting back on what the user says and encouraging deeper exploration with thoughtful open-ended questions only when necessary. Avoid generic or surface-level advice. Be concise, direct, and empathetic, focusing on a single idea or solution where possible, and provide meaningful, practical suggestions.
 
+If the user seems distressed, calmly suggest they reach out to a professional without being forceful. 
+
+Your goal is to make the user feel heard, understood, and gently guided toward coping strategies, but without overwhelming them with too many suggestions or options.
+ 
 User Query:
 {question}
 """
+
 
 def configure_genai(api_key):
     genai.configure(api_key=api_key)
@@ -38,6 +41,17 @@ def configure_genai(api_key):
     )
     return model
 
+import re
+
+def preprocess_response(response):
+    # Remove asterisks, bullet points, and newlines
+    clean_response = re.sub(r'[\*\-\•]', '', response)  # Remove bullet points or asterisks
+    clean_response = clean_response.replace('\n', ' ').strip()  # Remove newlines, extra spaces
+    clean_response = re.sub(r'\s+', ' ', clean_response)  # Collapse multiple spaces into one
+    # Ensure proper punctuation (only full stops and commas)
+    clean_response = re.sub(r'(\?|!)+', '.', clean_response)  # Replace multiple exclamation marks or question marks with full stops
+    return clean_response
+
 def generate_response(model, prompt):
     try:
         response = model.generate_content(prompt)
@@ -57,17 +71,15 @@ def chat_with_user(model, user_inp, chat_history, first_prompt):
         print("Assistant: You're welcome! If you need anything else, feel free to ask.")
         return "end the conversation gemini"
 
-    # Use template for the first response
     if first_prompt:
         prompt = TEMPLATE.format(question = user_input)
         first_prompt = False
-
     else:
-        # Include previous user input for context
         context = "\n".join([f"User: {entry['user']}" for entry in chat_history if 'user' in entry]) + f"\nAssistant: "
         prompt = context + user_input
 
     assistant_response = generate_response(model, prompt)
+    assistant_response = preprocess_response(assistant_response)
     print(f"Assistant: {assistant_response}")
     
     return assistant_response
