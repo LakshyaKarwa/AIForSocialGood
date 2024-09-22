@@ -19,8 +19,8 @@ Objectives
 Target Audience
 1. Low-Income and Rural Populations: Individuals who have limited access to mental health services, particularly in rural areas where services are scarce and travel is difficult.
 2. Farmers and Economically Stressed Communities: People facing severe socio-economic pressures, including farmers who are at high risk of mental health issues and suicides.
-3. Deaf and Hard-of-Hearing Individuals: ISL users who are underserved by current mental health support systems, due to the lack of ISL-based technology.
-4. General Population in Need of Mental Health Support: People across India who require accessible, culturally sensitive mental health advice in their local languages.
+ing Individuals: ISL users who are underserved by current mental health support systems, due to the lack of ISL-based technology.
+3. General Population in Need of Mental Health Support: People across India who require accessible, culturally sensitive mental health advice in their local languages.
 
 This project aims to tackle the critical gaps in mental health accessibility, especially for those most marginalized, by providing a scalable, inclusive, and language-agnostic solution.
 
