@@ -15,7 +15,7 @@ def iterative_chat_loop(model):
     while True:
         eng_input, lang_code = s2t.translate_dynamic_to_english(detect, lang_code)
         detect = False
-        assistant_response = mhm.chat_with_user(model, eng_input, chat_history, first_prompt)
+        assistant_response = mhm.chat_with_user(model, eng_input, chat_history, first_prompt, lang_code)
         first_prompt = False
 
         if assistant_response == -1:
@@ -49,5 +49,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# gemini API key: AIzaSyAwuW7ZvbYb7ygDqxWGDLjUSgfq8hbZ1x0
